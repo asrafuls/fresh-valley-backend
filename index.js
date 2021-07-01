@@ -2,10 +2,11 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
+const { response } = require('express');
 require('dotenv').config()
 
 const app = express()
-const port = 3000
+const port = 3001
 
 
 app.use(cors())
@@ -13,7 +14,7 @@ app.use(bodyParser.json())
 
 // Connect mongodb
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.yqdvo.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useUnifiedTopology: true}, { useNewUrlParser: true }, { connectTimeoutMS: 30000 }, { keepAlive: 1});
+const client = new MongoClient(uri, { useUnifiedTopology: true }, { useNewUrlParser: true }, { connectTimeoutMS: 30000 }, { keepAlive: 1 });
 
 client.connect(err => {
 
@@ -310,6 +311,12 @@ client.connect(err => {
       .toArray((err, docx) => {
         res.send(docx)
       })
+  })
+
+  // Get a product Api
+  app.get("/product/:pdId", (req, res) => {
+    productsCollection.findOne({ id: req.params.pdId })
+      .then(response => res.send(response))
   })
 
   // Set all products Api
