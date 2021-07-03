@@ -19,6 +19,7 @@ const client = new MongoClient(uri, { useUnifiedTopology: true }, { useNewUrlPar
 client.connect(err => {
 
   const productsCollection = client.db("fresh-valley").collection("products");
+  const ordersCollection = client.db("fresh-valley").collection("orders");
 
   const products = [
     {
@@ -299,7 +300,6 @@ client.connect(err => {
     },
   ]
 
-
   // Default Api
   app.get('/', (req, res) => {
     res.send('Running...')
@@ -313,11 +313,27 @@ client.connect(err => {
       })
   })
 
-  // Get a product Api
+  // Get a product Api 
   app.get("/product/:pdId", (req, res) => {
     productsCollection.findOne({ id: req.params.pdId })
       .then(response => res.send(response))
   })
+
+  // Place a order
+  app.post("/placeorder", (req, res) => {
+    ordersCollection.insertOne(req.body)
+      .then(() => {
+        res.send("success")
+      })
+  })
+
+  app.get("/usersOrders", (req, res) => {
+    ordersCollection.find({ userEmail: req.query.email })
+      .toArray((err, docx) => {
+        res.send(docx)
+      })
+  })
+
 
   // Set all products Api
   // app.get("/products-add", (req, res) => {
