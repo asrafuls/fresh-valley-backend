@@ -20,6 +20,7 @@ client.connect(err => {
 
   const productsCollection = client.db("fresh-valley").collection("products");
   const ordersCollection = client.db("fresh-valley").collection("orders");
+  const adminsCollection = client.db("fresh-valley").collection("admins");
 
   const products = [
     {
@@ -300,6 +301,7 @@ client.connect(err => {
     },
   ]
 
+
   // Default Api
   app.get('/', (req, res) => {
     res.send('Running...')
@@ -327,6 +329,7 @@ client.connect(err => {
       })
   })
 
+  // User orders
   app.get("/usersOrders", (req, res) => {
     ordersCollection.find({ userEmail: req.query.email })
       .toArray((err, docx) => {
@@ -334,6 +337,30 @@ client.connect(err => {
       })
   })
 
+  // Delete user order
+  app.get("/delete-order/:id", (req, res) => {
+    ordersCollection.deleteOne({ id: req.params.id })
+      .then(response => {
+        if (response.deletedCount === 1) {
+          res.status(200).send("success")
+        } else {
+
+        }
+      })
+  })
+  app.get("/admins", (req, res) => {
+    adminsCollection.find({})
+      .toArray((err, docx) => {
+        res.send(docx)
+      })
+  })
+
+  // app.get("/admin-add", (req, res) => {
+  //   adminsCollection.insertMany(admins)
+  //     .then(() => {
+  //       res.send("added...")
+  //     })
+  // })
 
   // Set all products Api
   // app.get("/products-add", (req, res) => {
