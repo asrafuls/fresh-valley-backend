@@ -327,6 +327,7 @@ client.connect(err => {
       .then(response => {
         if (response.deletedCount === 1) {
           res.status(200).send("success")
+          console.log(response)
         } else {
 
         }
@@ -334,13 +335,15 @@ client.connect(err => {
   })
 
   // Post a product
-  app.post("/add-product/", (req, res) => {
+  app.post("/add-product", (req, res) => {
     productsCollection.insertOne(req.body)
       .then(response => {
         if (response.insertedCount === 1) {
+          console.log(response)
           res.status(200).send('success')
         }
       })
+      .catch(err => console.log(err))
   })
 
   // Place a order
