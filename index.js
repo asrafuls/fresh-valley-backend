@@ -321,6 +321,18 @@ client.connect(err => {
       .then(response => res.send(response))
   })
 
+  // Delete product
+  app.get("/delete-product/:id", (req, res) => {
+    productsCollection.deleteOne({ id: req.params.id })
+      .then(response => {
+        if (response.deletedCount === 1) {
+          res.status(200).send("success")
+        } else {
+          
+        }
+      })
+  })
+
   // Place a order
   app.post("/placeorder", (req, res) => {
     ordersCollection.insertOne(req.body)
@@ -348,12 +360,14 @@ client.connect(err => {
         }
       })
   })
-  app.get("/admins", (req, res) => {
-    adminsCollection.find({})
-      .toArray((err, docx) => {
-        res.send(docx)
-      })
-  })
+
+
+  // app.get("/admins", (req, res) => {
+  //   adminsCollection.find({})
+  //     .toArray((err, docx) => {
+  //       res.send(docx)
+  //     })
+  // })
 
   // app.get("/admin-add", (req, res) => {
   //   adminsCollection.insertMany(admins)
