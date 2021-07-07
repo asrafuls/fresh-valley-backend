@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fileUpload = require('express-fileupload')
 const MongoClient = require('mongodb').MongoClient;
 const { response } = require('express');
 require('dotenv').config()
@@ -11,6 +12,8 @@ const port = 3001
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.static("product-images"))
+app.use(fileUpload())
 
 // Connect mongodb
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.yqdvo.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
@@ -336,14 +339,20 @@ client.connect(err => {
 
   // Post a product
   app.post("/add-product", (req, res) => {
-    productsCollection.insertOne(req.body)
-      .then(response => {
-        if (response.insertedCount === 1) {
-          console.log(response)
-          res.status(200).send('success')
-        }
-      })
-      .catch(err => console.log(err))
+    const file = req.files.file
+    const details = JSON.parse(req.body.details)
+    if (file.name === 'image/jpeg' || 'image/png') {
+      file.mv(`${__dirname}/product-images/${details.id}.jpg`)
+      details.img = `https://fresh-valley-by-asraful.herokuapp.com/product-img/${details.id}`
+      productsCollection.insertOne(details)
+        .then(response => {
+          if (response.insertedCount === 1) {
+            console.log(response)
+            res.status(200).send('success')
+          }
+        })
+        .catch(err => console.log(err))
+    }
   })
 
   // Place a order
@@ -374,6 +383,10 @@ client.connect(err => {
       })
   })
 
+  // Show product image
+  app.get('/product-img/:name', (req, res) => {
+    res.sendFile(__dirname + `/product-images/${req.params.name}.jpg`)
+  })
 
   // app.get("/admins", (req, res) => {
   //   adminsCollection.find({})
@@ -389,7 +402,7 @@ client.connect(err => {
   //     })
   // })
 
-  // Set all products Api
+  // Post all products Api
   // app.get("/products-add", (req, res) => {
   //   productsCollection.insertMany(products)
   //     .then(() => {
